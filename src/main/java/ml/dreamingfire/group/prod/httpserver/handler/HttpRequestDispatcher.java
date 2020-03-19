@@ -1,6 +1,7 @@
 package ml.dreamingfire.group.prod.httpserver.handler;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -41,5 +42,14 @@ public class HttpRequestDispatcher extends SimpleChannelInboundHandler<FullHttpR
     @Override
     public void channelReadComplete(ChannelHandlerContext channelHandlerContext) {
         channelHandlerContext.flush();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        Channel channel = ctx.channel();
+        if (channel.isActive()) {
+            ctx.close();
+        }
     }
 }

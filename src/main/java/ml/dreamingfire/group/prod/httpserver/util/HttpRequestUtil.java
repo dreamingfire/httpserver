@@ -84,12 +84,14 @@ public class HttpRequestUtil {
     private static Set<String> resolveContentType(FullHttpRequest request) {
         Set<String> resultSet = new HashSet<>();
         String contentType = request.headers().get(HttpHeaderNames.CONTENT_TYPE);
-        String[] contentPack = contentType.split("[ ;]+");
-        for(String contentItem: contentPack) {
-            if (contentItem.equals("")) {
-                continue;
+        if (contentType != null) {
+            String[] contentPack = contentType.split("[ ;]+");
+            for(String contentItem: contentPack) {
+                if (contentItem.equals("")) {
+                    continue;
+                }
+                resultSet.add(contentItem);
             }
-            resultSet.add(contentItem);
         }
         return resultSet;
     }
