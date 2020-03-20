@@ -95,4 +95,14 @@ public class HttpRequestUtil {
         }
         return resultSet;
     }
+
+    // 404 Page
+    public static String NotFoundPageMessage(String uri) {
+        return "<html><head><title>Not Found</title></head><body><h1>404 Not Found !</h1><br/>request uri: " + uri + "<br/>powered by Li Dafei" + "</body></html>";
+    }
+
+    // Method not allowed Page
+    public static String MethodNotAllowedPageMessage(String method) {
+        return "<html><head><title>Not Allowed</title></head><body><h1>403 Not Allowed !</h1><br/>request method: " + method.toUpperCase() + "<br/>powered by Li Dafei" + "</body></html>";
+    }
 }
