@@ -48,10 +48,10 @@ public class ControllerScanner {
     }
 
     // 根据包名找到URL
-    private static String getPkgPath(String pkgName) {
+    private static String getPkgPath(String pkgName) throws Exception{
         String pkgDir = pkgName.replace('.', File.separatorChar);
         URL url = Thread.currentThread().getContextClassLoader().getResource(pkgDir);
-        return url == null ? null : URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8);
+        return url == null ? null : URLDecoder.decode(url.getPath(), "UTF-8");
     }
 
     // 获取包下所有对象的集合
