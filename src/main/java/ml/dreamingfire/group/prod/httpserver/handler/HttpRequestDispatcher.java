@@ -7,9 +7,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+import ml.dreamingfire.group.prod.httpserver.domain.RequestMappingObj;
 import ml.dreamingfire.group.prod.httpserver.util.FormatUtil;
 import ml.dreamingfire.group.prod.httpserver.util.HttpRequestUtil;
+import ml.dreamingfire.group.prod.httpserver.util.RequestMappingContext;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
@@ -26,11 +29,31 @@ public class HttpRequestDispatcher extends SimpleChannelInboundHandler<FullHttpR
                 + "\tuser-agent: "    + attrMap.get(HttpRequestUtil.USER_AGENT)
                 + "\tauthorization: " + attrMap.get(HttpRequestUtil.AUTHORIZATION)
                 + "\tparameters: "    + attrMap.get(HttpRequestUtil.PARAMS));
-        String msg = "<html><header><title>请求信息</title></header><body>URI: "
-                + attrMap.get(HttpRequestUtil.URI) + "<br/>method: "
-                + attrMap.get(HttpRequestUtil.METHOD) + "<br/>content type: "
-                + attrMap.get(HttpRequestUtil.CONTENT_TYPE) + "<br/>params: "
-                + attrMap.get(HttpRequestUtil.PARAMS) + "<br/></body></html>";
+        String msg = "";
+        String uri = (String) attrMap.get(HttpRequestUtil.URI);
+        String method = (String) attrMap.get(HttpRequestUtil.METHOD);
+        if (RequestMappingContext.contain(uri)) {
+            RequestMappingObj rmObj = RequestMappingContext.getValue(uri);
+            if (Arrays.binarySearch(rmObj.getAllowMethods(), method, (o1, o2) -> {
+                if (o1.toUpperCase().equals(o2.toUpperCase())) {
+                    return 0;
+                }
+                return -1;
+            }) < 0) {
+                msg = HttpRequestUtil.MethodNotAllowedPageMessage(method);
+            } else {
+                // 使用反射调用控制器方法
+                Object ret;
+                if (rmObj.getParameterTypes().length > 0) {
+                    ret = rmObj.getMethodName().invoke(rmObj.getClassName().getDeclaredConstructor().newInstance(), attrMap);
+                } else {
+                    ret = rmObj.getMethodName().invoke(rmObj.getClassName().getDeclaredConstructor().newInstance());
+                }
+                msg = ret.toString();
+            }
+        } else {
+            msg = HttpRequestUtil.NotFoundPageMessage(uri);
+        }
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
                 HttpResponseStatus.OK,
