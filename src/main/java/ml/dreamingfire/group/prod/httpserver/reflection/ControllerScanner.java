@@ -1,6 +1,5 @@
 package ml.dreamingfire.group.prod.httpserver.reflection;
 
-import io.netty.util.CharsetUtil;
 import ml.dreamingfire.group.prod.httpserver.anno.Controller;
 import ml.dreamingfire.group.prod.httpserver.anno.RequestMapping;
 import ml.dreamingfire.group.prod.httpserver.domain.RequestMappingObj;
@@ -10,6 +9,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ControllerScanner {
@@ -51,7 +51,7 @@ public class ControllerScanner {
     private static String getPkgPath(String pkgName) {
         String pkgDir = pkgName.replace('.', File.separatorChar);
         URL url = Thread.currentThread().getContextClassLoader().getResource(pkgDir);
-        return url == null ? null : URLDecoder.decode(url.getPath(), CharsetUtil.UTF_8);
+        return url == null ? null : URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8);
     }
 
     // 获取包下所有对象的集合
